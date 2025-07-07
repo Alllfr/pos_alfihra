@@ -1,66 +1,102 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Laravel 11-Based Web for Point of Sale Management (Admin & Cashier Only)
+This is a Laravel 11-based Point of Sale (POS) web application designed to provide a role-based user experience for Admin and Cashier. It includes features such as product and category management, transaction processing, report generation, and CSV export functionality. The following guide will walk you through setting up the application from scratch, including authentication setup, database relationships, route configuration, controller logic, views, and advanced features like dynamic filtering and exporting reports.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+🛠️ Step-by-Step Setup and Usage Guide
+1. Create a New Laravel Project
+Ensure your development server (e.g., XAMPP) is running with MySQL and Apache services enabled.
+Then, open your terminal or command prompt and run the following:
+    a) Install Laravel globally via Composer:
+    composer global require laravel/installer
+    b) Create a new Laravel project:
+    laravel new pos_alfihra
+This will generate a fresh Laravel 11 project in a folder named 'pos_alfihra'.
 
-## About Laravel
+3. Configure the Database
+Open the '.env' file located in your project root and configure your database credentials:
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=pos_laravell //fill this based on your database name
+    DB_USERNAME=root
+    DB_PASSWORD=
+Make sure to create a database named 'pos_laravell' using a tool like phpMyAdmin or directly via MySQL CLI.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+3. Install Laravel Breeze for Authentication
+Laravel Breeze provides lightweight authentication scaffolding.
+Run the following commands:
+    composer require laravel/breeze --dev
+    php artisan breeze:install
+    npm install && npm run dev
+    php artisan migrate
+This will generate the user auth system using Blade templates, and create the default users table.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+5. Generate Models, Migrations, and Controllers
+    Use the Artisan command to create models with migrations and resourceful controllers:
+        php artisan make:model Product -mcr
+        php artisan make:model Transaction -mcr
+        php artisan make:model Category -mcr
+        php artisan make:model TransactionDetail -m
+            -m: creates migration file
+            -c: creates controller file
+            -r: makes it a resource controller with CRUD method stubs
+   
+5. Define Model Relationships
+   Example in app/Models/Product.php:
+        use Illuminate\Database\Eloquent\Model;
+        class Product extends Model {
+        protected $fillable = ['name', 'description', 'price', 'stock', 'category_id', 'image'];
+        public function category() {
+        return $this->belongsTo(Category::class);
+        }
+        }
+        6. Define Database Migrations
+        Example for 'products' table in migration file:
+        
+        Schema::create('products', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('category_id')->constrained()->onDelete('cascade');
+        $table->string('name');
+        $table->decimal('price', 10, 2);
+        $table->integer('stock');
+        $table->timestamps();
+        });
+Then run: php artisan migrate
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+7. Implement Controller Logic
+    In ProductController, implement methods for CRUD operations and image handling.
+    Use validation, file upload logic with 'store' and 'update', and file deletion logic with 'destroy'.
+    Pass required data to views using compact(), e.g., compact('products', 'categories').
+   
+9. Create Blade Views
+    Create the following view files under 'resources/views/admin/products/':
+    - xindex.blade.php
+    - create.blade.php
+    - edit.blade.php
+    Create 'dashboard.blade.php' to show admin panel with links to product/category management.
+    Use Blade syntax and Bootstrap/Tailwind for styling.
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+9. Configure Web Routes
+    In 'routes/web.php':
+    Use middleware to restrict access:
+    Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', fn() => view('admin.dashboard'))->name('dashboard');
+    Route::resource('products', ProductController::class);
+    Route::resource('categories', CategoryController::class);
+    });
+    Similar group for cashier with TransactionController.
+   
+11. Implement Report and CSV Export
+    In TransactionController, create a 'report' method to filter data by date and category:
+    Use 'when()' and 'whereHas()' to dynamically filter based on request inputs.
+    Create a Blade view (laporan.blade.php) with a form for start_date, end_date, and category_id.
+    For CSV export, define 'exportCsv' method using response()->stream().
+    Loop through each transaction and detail, formatting rows as CSV with fputcsv(). To make the CSV table looks tidied up, don't forget to add 'Content-Type' => 'text/csv; charset=UTF-     8', //based in Indonesia
+    
+13. Run and Test Your Application
+    Run: php artisan optimize
+    Run: php artisan serve
+    Visit: http://localhost:8000
+        a)  Register as Admin → Manage products & categories
+        b)  Register as Cashier (Log out first if you’re logged in) → Make transactions → View & export reports
+        c)  Test filtering by date/category and exporting to CSV
+        d)  Log out and shut down server as needed
